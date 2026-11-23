@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Höhen im Dreieck zeichnen</title><style>
+:root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#203e47;background:#fff;font-synthesis:none}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}[hidden]{display:none!important}button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:11px 16px;background:#eaf0f2;color:#24434b;font-weight:700}button:hover:enabled{filter:brightness(.96)}button:disabled{cursor:default;opacity:.58}button:focus-visible{outline:3px solid #13847e;outline-offset:4px}.primary{background:#147c75;color:white}
+.menu{height:100vh;height:100dvh;overflow:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 22px;background:linear-gradient(160deg,#fff 45%,#eff8f5)}.menu-mark{width:62px;height:62px;border:2px solid #b5dcd4;border-radius:20px;color:#147c75;display:grid;place-items:center;font-size:40px;margin-bottom:24px}.menu h1{font-size:clamp(32px,5.4vw,64px);letter-spacing:-.045em;text-align:center;line-height:1.12;margin:0 0 16px;max-width:760px;font-weight:850}.menu>p{color:#607a80;text-align:center;font-size:17px;line-height:1.6;margin:0 0 36px}.levels{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;max-width:1000px;width:100%}.level{flex:1;min-width:220px;max-width:300px;min-height:160px;padding:26px;text-align:left;border:1px solid #c7ded9;background:white;box-shadow:0 8px 26px #1d59430b;border-radius:20px;display:flex;flex-direction:column;gap:12px}.level strong{color:#147c75;font-size:27px;letter-spacing:-.5px}.level span{font-weight:450;font-size:16px;line-height:1.5;color:#527079}.level .level-status{font-size:14px;font-weight:650;color:#147c75;margin-top:auto}.level:disabled{opacity:1;background:#eaf5ef;border-color:#c2ddcd}.level:disabled strong{color:#54866b}.menu-message{color:#147c75!important;font-weight:700;margin:24px 0 0!important}
+main{display:grid;grid-template-rows:auto minmax(0,1fr) auto;width:100%;height:100vh;height:100dvh}.topbar{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding:clamp(10px,2vw,24px)}.tools{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.tools button{font-size:clamp(12px,1.2vw,14px);min-height:40px;padding:10px 12px}.tools .help{background:#147c75;color:white}.task{justify-self:center;width:min(900px,100%);text-align:center;padding:clamp(12px,2vw,20px) clamp(16px,3vw,32px);background:#e5f3f0;border:1px solid #b5dcd4;border-radius:16px}.task h1{margin:0;color:#145c55;font-weight:800;font-size:clamp(20px,2.6vw,34px);line-height:1.3;letter-spacing:-.4px}.board{position:relative;min-width:0;min-height:0;width:100%;height:100%;background:white}svg{display:block;width:100%;height:100%;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}.tri{fill:none;stroke:#243e47;stroke-width:2.2;stroke-linejoin:round}.vertex{font:bold 23px Georgia,serif;fill:#203c45}.side{font:italic 23px Georgia,serif;fill:#49656e}.draw{stroke:#263e47;stroke-width:1.8;stroke-linecap:round;fill:none}.wrong{stroke:#db4e58}.correct{stroke:var(--height-color,#147c75);stroke-width:1.8}.altitude-extension{stroke:var(--height-color,#147c75);stroke-width:1.6;stroke-dasharray:8 6;fill:none}.side-extension{stroke:#8198a0;stroke-width:1.7;stroke-dasharray:7 6;fill:none}.fade{opacity:0;transition:opacity 2.8s ease}.guide{stroke:#567980;stroke-width:1.4;fill:none}.snap-motion{transition:transform .14s ease-out}.height-label{font:italic 24px Georgia,serif;paint-order:stroke;stroke:white;stroke-width:5;stroke-linejoin:round}.orthocenter-label{font:700 18px system-ui,sans-serif;fill:#147c75;paint-order:stroke;stroke:white;stroke-width:5}
+.quiz-panel{padding:10px clamp(10px,2vw,24px);border-top:1px solid #e6edef;background:white;display:flex;align-items:center;justify-content:center;gap:12px 24px;flex-wrap:wrap}.quiz-panel h2{font-size:clamp(16px,2vw,20px);margin:0}.answers{display:flex;gap:8px}.answers button{font:italic 26px Georgia,serif;min-width:68px;padding:8px 20px;border:1px solid #dbe6e8;background:#f7fafb}.answers sub{font-size:18px}.answerfeedback{margin:0;flex-basis:100%;text-align:center;font-size:14px}.answerfeedback:empty{display:none}
+.modal{border:0;border-radius:24px;box-shadow:0 24px 80px #17303935;width:min(440px,calc(100% - 32px));max-height:calc(100dvh - 24px);overflow:auto;padding:32px;color:#24404a}dialog::backdrop{background:#16313b55;backdrop-filter:blur(3px)}.modal h2{font-size:26px;margin:16px 0 12px;letter-spacing:-.6px}.modal p{line-height:1.6;color:#5c7279;margin-bottom:24px}.modal .close{position:absolute;right:14px;top:12px;padding:6px 11px;background:transparent;font-size:23px}.symbol{border-radius:16px;width:52px;height:52px;background:#fff0ed;color:#c3444e;display:grid;place-items:center;font-size:26px}.modal .primary{width:100%}
+#confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:10}.confetto{position:absolute;width:9px;height:14px;animation:fall 3.8s ease-in forwards}@keyframes fall{from{transform:translateY(-20px) rotate(0deg);opacity:1}to{transform:translateY(90vh) rotate(650deg);opacity:0}}#successFlash{position:fixed;inset:0;z-index:11;display:grid;place-items:center;pointer-events:none;opacity:0;color:#12834b;font-size:clamp(76px,16vw,180px);font-weight:950;letter-spacing:-.06em;text-shadow:0 2px 24px #fff,0 0 50px #fff;line-height:1}#successFlash.show{animation:success-flash 2.1s ease-in-out forwards}#successFlash.grand{font-size:clamp(38px,8vw,104px);letter-spacing:-.04em;text-align:center;padding:20px;animation-duration:3.1s}@keyframes success-flash{0%{opacity:0;transform:scale(.92)}18%,65%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.03)}}#interactionLock{position:fixed;inset:0;z-index:20;touch-action:none;display:flex;align-items:flex-start;justify-content:center;padding:16px;cursor:wait}#helpMessage{background:#e5f3f0;color:#145c55;border:1px solid #a7d2c6;box-shadow:0 4px 16px #17303918;border-radius:12px;padding:12px 22px;font-weight:700;text-align:center;max-width:100%}
+@media(max-width:650px){.topbar{gap:8px;padding:10px}.tools{gap:6px}.tools button{padding:9px 10px}.menu{justify-content:flex-start;padding-top:36px}.menu h1{font-size:36px}.menu>p{margin-bottom:22px}.levels{gap:12px}.level{min-height:115px;max-width:100%;min-width:100%;padding:18px 22px;gap:6px}.level strong{font-size:23px}.menu-mark{margin-bottom:18px}}@media(max-height:440px){.menu{justify-content:flex-start;padding:20px}.menu-mark{display:none}.menu h1{font-size:32px}.menu>p{margin:8px 0 18px}.level{min-height:110px;padding:18px;min-width:180px}.topbar{padding:6px 12px;gap:6px}.task{padding:8px 14px}.task h1{font-size:20px}.tools button{min-height:34px;padding:7px 10px}.quiz-panel{padding:5px 12px;gap:6px 16px}.answers button{padding:5px 16px}}
+@media(prefers-reduced-motion:reduce){.snap-motion{transition:none}.fade{transition-duration:.2s}.confetto{animation-duration:.2s}#successFlash.show{animation-name:success-still}@keyframes success-still{0%,100%{opacity:0}10%,90%{opacity:1}}}
+
+.toolbar-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px 18px;flex-wrap:wrap}.home-button{font-size:clamp(12px,1.2vw,14px);min-height:40px;padding:10px 12px;flex-shrink:0}.toolbar-row .tools{margin-left:auto}.free-entry{position:fixed;bottom:18px;left:18px;font-size:14px;font-weight:650;background:white;border:1px solid #c7ded9;color:#147c75;padding:10px 14px}.menu{padding-bottom:86px}.eraser{display:grid;place-items:center}.eraser svg{width:22px;height:22px;pointer-events:none}.eraser[aria-pressed="true"]{background:#147c75;color:white}.freehand{stroke:#263e47;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}.dialog-actions{display:flex;gap:10px}.dialog-actions button{flex:1}.dialog-actions .primary{width:auto}@media(max-width:650px){.home-button{padding:9px 10px}.toolbar-row{gap:8px}.free-entry{bottom:12px;left:12px}}
+.menu h1{margin-bottom:10px}.menu-diagram{width:min(570px,100%);height:clamp(165px,30vh,275px);flex-shrink:0;margin:4px 0 24px;touch-action:auto}.levels{max-width:740px;gap:16px}.level{min-height:82px;min-width:170px;max-width:230px;padding:20px 26px;display:grid;place-items:center;text-align:center}.level strong{font-size:25px}.level:disabled{background:#dcece3;opacity:.65;box-shadow:none}.menu-message:empty{display:none}.menu h1{flex-shrink:0}@media(max-width:650px){.menu{padding-top:28px}.menu h1{font-size:32px}.menu-diagram{height:210px;margin-bottom:18px}.levels{gap:10px}.level{min-width:0;max-width:none;min-height:65px;padding:16px;flex-basis:100%}.level strong{font-size:22px}}@media(max-height:500px) and (min-width:651px){.menu{padding-top:16px}.menu h1{font-size:28px}.menu h1 br{display:none}.menu-diagram{height:155px;margin:0 0 12px}.level{min-height:58px;padding:12px 20px}}
+.task{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px}.task .help{background:#147c75;color:white;font-size:14px;padding:11px 18px;min-height:42px}.task h1{min-width:0}@media(max-width:650px){.task{gap:10px;padding:12px}.task .help{padding:10px 13px}}
+.draw,.freehand{transition:stroke-width .7s ease,stroke .25s ease}.draw.tracing,.freehand.tracing{stroke-width:4.2}#lines,#altitudeExtensions,#intersection{pointer-events:none}@media(prefers-reduced-motion:reduce){.draw,.freehand{transition:none}}
+/* Fixed lesson slots: question wrapping and answer visibility never resize the drawing. */
+main{--header-space:184px;--answer-space:112px;grid-template-rows:var(--header-space) minmax(0,1fr) var(--answer-space)}.topbar{height:100%;min-height:0;overflow:auto;align-content:start}.board{grid-row:2}.quiz-panel{grid-row:3;height:100%;min-height:0;overflow:auto;align-content:center}main[data-mode="free"]{--header-space:90px;--answer-space:0px}@media(max-width:650px){main{--header-space:222px;--answer-space:144px}main[data-mode="free"]{--header-space:116px}}@media(max-height:440px) and (min-width:651px){main{--header-space:112px;--answer-space:96px}main[data-mode="free"]{--header-space:58px}}
+.topic-buttons{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;max-width:800px;width:100%;margin-top:28px}.topic-buttons button{background:white;border:1px solid #bedbd3;border-radius:20px;min-height:120px;flex:1;min-width:230px;padding:28px;color:#147c75;font-size:clamp(22px,3vw,29px);box-shadow:0 8px 25px #145b440a}.topic-back{position:fixed;top:16px;left:18px;font-size:14px;z-index:2}.angle-panel{grid-row:3;height:100%;min-height:0;overflow:auto;border-top:1px solid #e6edef;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;padding:8px 14px}.angle-panel p{margin:0;font-size:15px;text-align:center}.range-options{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.range-options button{background:#eef5f3;border:1px solid #c4ded6;font-size:16px;padding:10px 15px}.measure-form{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px}.measure-form input{width:100px;min-height:44px;border:1px solid #9dbcb5;border-radius:10px;padding:8px 12px;font:700 22px system-ui;text-align:center;color:#145c55;background:white}.angle-message{font-weight:650;min-height:20px}.angle-message.wrong{color:#bf3440}.angle-message.almost{color:#9c6500}#angleHint:empty{display:none}#angleHint{font-size:14px;color:#40666b}.reading-cue{fill:none;stroke:#e18d18;stroke-width:3.5;animation:cue-pulse 1.3s ease-in-out infinite}@keyframes cue-pulse{50%{stroke-width:5;stroke-opacity:.55}}.angle-done p{max-width:680px}.angle-done button{margin-top:10px}.topic-title{color:#145c55}@media(max-width:650px){.topic-buttons{gap:14px}.topic-buttons button{min-height:100px;min-width:100%}.range-options{gap:6px}.range-options button{font-size:13px;padding:9px 10px}.topic-back{font-size:12px;top:10px;left:10px}#menu{padding-top:66px}}@media(prefers-reduced-motion:reduce){.reading-cue{animation:none}}
+.angle-message:empty{display:none}.angle-estimate{grid-column:1/-1;font-size:15px;font-weight:650;color:#365f58;text-align:center}main[data-mode="angle"]{--header-space:160px;--answer-space:100px}main[data-mode="angle"] .topbar{padding:10px 20px;gap:8px}main[data-mode="angle"] .task{padding:10px 18px;row-gap:5px}main[data-mode="angle"] .task h1{font-size:28px}@media(max-width:650px){main[data-mode="angle"]{--header-space:200px;--answer-space:124px}main[data-mode="angle"] .topbar{padding:8px 10px}main[data-mode="angle"] .task h1{font-size:23px}.angle-estimate{font-size:14px}}@media(max-height:440px) and (min-width:651px){main[data-mode="angle"]{--header-space:128px;--answer-space:90px}main[data-mode="angle"] .topbar{padding:6px 12px;gap:6px}main[data-mode="angle"] .task .help{min-height:32px;padding:7px 12px}main[data-mode="angle"] .task{padding:6px 12px}main[data-mode="angle"] .task h1{font-size:21px}main[data-mode="angle"] .tools button,main[data-mode="angle"] .home-button{min-height:32px;padding:7px 10px}}
+main[data-mode="guess"]{--header-space:154px;--answer-space:194px}main[data-mode="guess"] .topbar{padding:10px 20px;gap:8px}main[data-mode="guess"] .task{padding:12px 20px}main[data-mode="guess"] .task h1{font-size:clamp(22px,2.5vw,30px)}.guess-panel{grid-row:3;min-height:0;height:100%;overflow:auto;padding:12px 20px;border-top:1px solid #e6edef;display:flex;flex-direction:column;justify-content:center;gap:10px}.guess-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:min(950px,100%);margin:0 auto}.guess-options button{min-height:43px;border:1px solid #c4ded6;background:#eef5f3;font-size:16px;padding:10px}.guess-message{margin:0;text-align:center;line-height:1.45;font-size:15px;min-height:22px}.guess-message.wrong{color:#ad3041}.types-help{width:min(960px,calc(100% - 24px));max-height:calc(100dvh - 24px);padding:26px}.types-help h2{margin-top:8px}.type-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0}.type-card{border:1px solid #cce1db;border-radius:14px;padding:14px;text-align:center;background:#f7fbf9}.type-card h3{font-size:18px;color:#145c55;margin:0 0 6px}.type-card p{font-size:15px;color:#49666c;margin:0}.type-card svg{height:130px;width:100%;touch-action:auto}.type-card .example{font-size:14px;margin-top:4px}.guess-options button:hover{background:#dfefe9}@media(max-width:650px){main[data-mode="guess"]{--header-space:160px;--answer-space:264px}.guess-panel{padding:10px;gap:8px}.guess-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.guess-options button{font-size:14px;min-height:42px;padding:9px}.guess-message{font-size:14px}.type-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.type-card{padding:10px}.type-card h3{font-size:16px}.type-card svg{height:105px}.type-card p{font-size:13px}.types-help{padding:20px 12px}}@media(max-width:370px){.type-grid{grid-template-columns:minmax(0,1fr)}}@media(max-height:440px) and (min-width:651px){main[data-mode="guess"]{--header-space:112px;--answer-space:164px}.guess-panel{padding:6px 14px;gap:6px}.guess-options button{min-height:34px;padding:7px;font-size:14px}}
+main[data-mode="guess"] .task{grid-template-columns:minmax(0,1fr)}
+</style></head><body>
+<section class="menu" id="topics" aria-labelledby="topicsTitle"><h1 class="topic-title" id="topicsTitle">Geometrie üben</h1><div class="topic-buttons"><button id="topicGuess">Winkel schätzen</button><button id="topicAngles">Winkel messen</button><button id="topicHeights">Höhen im Dreieck</button></div></section>
+<section class="menu" id="menu" aria-labelledby="menuTitle" hidden><button class="topic-back" id="heightTopics">Zurück zur Themenauswahl</button><h1 id="menuTitle">Höhen im Dreieck<br>zeichnen</h1><svg id="menuDiagram" class="menu-diagram" viewBox="0 0 620 310" role="img" aria-label="Dreieck mit drei farbigen Seiten und ihren gleichfarbigen Höhen. Die gegenüberliegenden Eckpunkte haben jeweils dieselbe Farbe."></svg><div class="levels"><button class="level" id="level1" data-level="1"><strong>Stufe 1</strong></button><button class="level" id="level2" data-level="2"><strong>Stufe 2</strong></button><button class="level" id="level3" data-level="3"><strong>Stufe 3</strong></button></div><p class="menu-message" id="menuMessage" aria-live="polite"></p></section>
+<main id="exercise" hidden><div class="topbar"><div class="toolbar-row"><button class="home-button" id="home">Zurück zur Startseite</button><div class="tools"><button class="primary" id="guessHelp" hidden>Hilfe</button><button class="eraser" id="eraser" aria-label="Radiergummi" title="Radiergummi ein- oder ausschalten" aria-pressed="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 13 8-9a2 2 0 0 1 3 0l5 5a2 2 0 0 1 0 3l-8 9H8l-4-4a3 3 0 0 1 0-4Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m8 9 9 9M12 21h9" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button><button id="resetTool">Geodreieck zurücksetzen</button><button id="restart">Neu starten</button></div></div><section class="task" id="taskPanel"><h1 id="task">Zeichne die Höhe zur Seite c ein.</h1><button class="help" id="help">Hilfe</button><span class="angle-estimate" id="angleEstimate" hidden></span></section></div>
+<div class="board"><svg id="canvas" viewBox="0 0 1000 560" aria-label="Dreieck ABC mit beweglichem Geodreieck"><g id="finishedScene"><g id="angleDrawing" hidden></g><g id="sideExtensions"></g><g id="triangle"></g><g id="ruler" transform="translate(560 525) rotate(0)"><path id="rulerOutline" fill="#d7eaed" fill-opacity=".28" stroke="#6c949d" stroke-width="1.8"/><path id="rulerArc" fill="none" stroke="#f3c845" stroke-width="14" opacity=".72"/><path id="rulerMiddle" class="guide"/><g id="rulerNumbers" hidden></g><g id="angleReadingCue"></g></g><g id="lines"></g><g id="altitudeExtensions"></g><g id="intersection"></g></g></svg></div>
+<section class="quiz-panel" id="quiz" aria-labelledby="quizTitle" hidden><h2 id="quizTitle">Wie heißt diese Höhe?</h2><div class="answers"><button data-answer="a" aria-label="h Index a">h<sub>a</sub></button><button data-answer="c" aria-label="h Index c">h<sub>c</sub></button><button data-answer="b" aria-label="h Index b">h<sub>b</sub></button></div><p class="answerfeedback" id="answerFeedback" aria-live="polite"></p></section><section class="angle-panel" id="anglePanel" hidden><div id="angleRange"><p>Schätze zuerst: In welchem Bereich liegt der markierte Winkel?</p><div class="range-options"><button data-range="0">0° bis 90°</button><button data-range="1">90° bis 180°</button><button data-range="2">180° bis 360°</button></div></div><form class="measure-form" id="angleForm" hidden><label for="angleInput">Winkelgröße:</label><input id="angleInput" type="text" inputmode="decimal" autocomplete="off" aria-label="Winkelgröße in Grad"><span>°</span><button class="primary" type="submit">Prüfen</button></form><p class="angle-message" id="angleMessage" aria-live="polite"></p><p id="angleHint" aria-live="polite"></p></section><section class="guess-panel" id="guessPanel" hidden><div class="guess-options" id="guessOptions"></div><p id="guessMessage" class="guess-message" aria-live="polite"></p></section></main>
+<dialog class="modal" id="feedback" aria-labelledby="feedbackTitle"><button class="close" aria-label="Hinweis schließen">×</button><div id="symbol" class="symbol">!</div><h2 id="feedbackTitle"></h2><p id="feedbackText"></p><button class="primary" id="feedbackOk">Noch einmal versuchen</button></dialog>
+<dialog class="modal" id="confirmHome" aria-labelledby="confirmHomeTitle"><h2 id="confirmHomeTitle">Zurück zur Startseite?</h2><p>Die aktuelle Zeichnung wird dabei verworfen. Bereits abgeschlossene Stufen bleiben gespeichert.</p><div class="dialog-actions"><button id="stayHere">Hier bleiben</button><button class="primary" id="confirmHomeYes">Zur Startseite</button></div></dialog>
+<button class="free-entry" id="freeEntry">Freies Zeichnen</button>
+<div id="successFlash" role="status" aria-live="polite"></div><div id="confetti" aria-hidden="true"></div><div id="interactionLock" aria-label="Automatische Demonstration läuft" hidden></div>
+
+<section class="menu angle-done" id="angleDone" hidden aria-labelledby="angleDoneTitle"><h1 id="angleDoneTitle">Du hast es jetzt drauf!</h1><p>Alle acht Winkel hast du richtig bestimmt. Probiere es jetzt auf Papier: Zeichne verschiedene Winkel und miss sie mit einem echten Geodreieck. So übst du das Anlegen und Ablesen mit Papier und Stift.</p><button class="primary" id="angleDoneHome">Zurück zur Themenauswahl</button></section>
+<dialog class="modal types-help" id="angleTypesHelp" aria-labelledby="typesHelpTitle"><button class="close" id="closeTypesHelp" aria-label="Winkelübersicht schließen">×</button><h2 id="typesHelpTitle">Winkeltypen im Überblick</h2><div class="type-grid" id="typeCards"></div><button class="primary" id="continueGuess">Weiter üben</button></dialog>
+<section class="menu" id="guessDone" hidden><h1>Winkel richtig eingeschätzt!</h1><p>Du hast alle sechs Winkeltypen erkannt – am Winkelbereich und am Fachbegriff.</p><button class="primary" id="guessDoneHome">Zurück zur Themenauswahl</button></section>
+<script>
+'use strict';
+const $=id=>document.getElementById(id), svg=$('canvas'), NS='http://www.w3.org/2000/svg';
+function showSvg(id,visible){const node=$(id);node.hidden=!visible;if(visible)node.removeAttribute('hidden');else node.setAttribute('hidden','');node.setAttribute('display',visible?'inline':'none')}
+const vertices={a:{x:288.8,y:407.6},b:{x:715.6,y:350.4},c:{x:469.2,y:134.8}};
+const sides={a:[vertices.b,vertices.c],b:[vertices.a,vertices.c],c:[vertices.a,vertices.b]};
+let target='c',stage='menu',activeLine=null,pending=null,gesture=null,space=false,tool={x:560,y:525,angle:0};
+let successRun=0,roundIndex=0,currentLevel=1,mode='lesson',erasing=false,freeStrokes=[],sceneViewBox='';
+const heightColors={c:'#147c75',a:'#9b3c9e',b:'#276bc3'},heightLines=new Map();
+let roundHelped=false,soloCounts={1:0,2:0,3:0},completedLevels=[];
+try{const saved=JSON.parse(localStorage.getItem('hoehenwerkstatt-mastery-v2')||'{}');for(const n of [1,2,3]){const count=saved.soloCounts?.[n];if(Number.isInteger(count)&&count>=0&&count<=3)soloCounts[n]=count}completedLevels=[1,2,3].filter(n=>soloCounts[n]>=3)}catch{}
+function saveMastery(){try{localStorage.setItem('hoehenwerkstatt-mastery-v2',JSON.stringify({soloCounts}))}catch{}}
+const pointers=new Map();
+const sub=(a,b)=>({x:a.x-b.x,y:a.y-b.y}),dot=(a,b)=>a.x*b.x+a.y*b.y,len=a=>Math.hypot(a.x,a.y),dist=(a,b)=>len(sub(a,b));
+let TOOL_SIZE=Math.ceil(Math.max(...Object.keys(vertices).map(k=>dist(vertices[k],foot(k)))))+20;
+$('rulerOutline').setAttribute('d',`M${-TOOL_SIZE} 0 L${TOOL_SIZE} 0 L0 ${-TOOL_SIZE} Z`);
+const arcRadius=Math.round(TOOL_SIZE*.4);
+$('rulerArc').setAttribute('d',`M${-arcRadius} 0 A${arcRadius} ${arcRadius} 0 0 1 ${arcRadius} 0`);
+$('rulerMiddle').setAttribute('d',`M0 0 L0 ${-TOOL_SIZE}`);
+function foot(k){const [a,b]=sides[k],v=sub(b,a),t=dot(sub(vertices[k],a),v)/dot(v,v);return{x:a.x+t*v.x,y:a.y+t*v.y}}
+function lineDistance(p,a,b){const v=sub(b,a);return Math.abs(v.x*(p.y-a.y)-v.y*(p.x-a.x))/len(v)}
+function assess(a,b,k,pose=null){const v=sub(b,a),length=len(v);if(length<35)return{ok:false,text:'Deine Linie ist noch zu kurz. Zeichne die Höhe vom Eckpunkt bis zur gegenüberliegenden Seite.'};
+ const matches=key=>{const [s,t]=sides[key],w=sub(t,s),f=foot(key),u=vertices[key];const along=p=>dot(sub(p,a),v)/dot(v,v),vertexDistance=lineDistance(u,a,b);return{vertexDistance,footDistance:lineDistance(f,a,b),vertex:vertexDistance<=3,perp:Math.abs(dot(v,w)/(length*len(w)))<Math.sin(Math.PI/180),covers:Math.min(along(u),along(f))>=-6/length&&Math.max(along(u),along(f))<=1+6/length}};
+ const m=matches(k);if(m.vertex&&m.perp&&m.covers&&m.footDistance<=3){if(pose){const [s,t]=sides[k],r=pose.angle*Math.PI/180,tip={x:pose.x+TOOL_SIZE*Math.sin(r),y:pose.y-TOOL_SIZE*Math.cos(r)};if(lineDistance(pose,s,t)>4||lineDistance(tip,s,t)>6)return{ok:false,text:`Deine Linie ist schon nah dran. Lege die senkrechte Mittellinie des Geodreiecks noch genauer auf die Seitenlinie ${k}. Die lange Zeichenkante muss durch den Eckpunkt ${k.toUpperCase()} gehen.`}}return{ok:true}};
+ for(const other of ['a','b','c'])if(other!==k){const x=matches(other);if(x.vertex&&x.perp&&x.covers&&x.footDistance<=3)return{ok:false,text:`Du hast eine Höhe eingezeichnet, aber sie gehört zur Seite ${other}. Gesucht ist die Höhe zur Seite ${k}.`}}
+ if(!m.vertex&&m.perp&&m.vertexDistance<=32)return{ok:false,text:`Dein Ansatz stimmt: Die Richtung ist schon richtig! Verschiebe das Geodreieck noch etwas, sodass die Zeichenkante genau durch den gegenüberliegenden Eckpunkt ${k.toUpperCase()} geht. Zeichne dann die Höhe erneut.`};
+ if(!m.vertex)return{ok:false,text:`Die Höhe zur Seite ${k} muss durch den gegenüberliegenden Eckpunkt ${k.toUpperCase()} gehen. Deine Linie geht noch nicht durch diesen Eckpunkt.`};
+ if(!m.perp)return{ok:false,text:`Deine eingezeichnete Linie steht noch nicht genau senkrecht auf der Seitenlinie ${k}. Lege die senkrechte Mittellinie des Geodreiecks auf die Seitenlinie. Die lange Zeichenkante steht dann im rechten Winkel dazu.`};
+ if(m.footDistance>3)return{ok:false,text:`Die Linie weicht am Höhenfußpunkt noch zu weit ab. Lege die senkrechte Mittellinie des Geodreiecks genau auf die Seitenlinie ${k}, sodass die lange Zeichenkante senkrecht dazu steht.`};
+ return{ok:false,text:'Die Richtung stimmt schon! Deine Höhe muss den Eckpunkt mit der gegenüberliegenden Seite verbinden. Verlängere deine Linie bis zu beiden.'};}
+function position(e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
+function rulerEdges(){const r=tool.angle*Math.PI/180,c=Math.cos(r),s=Math.sin(r);const points=[[-TOOL_SIZE,0],[TOOL_SIZE,0],[0,-TOOL_SIZE]].map(([x,y])=>({x:tool.x+x*c-y*s,y:tool.y+x*s+y*c}));return points.map((a,i)=>({a,b:points[(i+1)%3]}))}
+function insideTool(p){const r=-tool.angle*Math.PI/180,d=sub(p,tool),x=d.x*Math.cos(r)-d.y*Math.sin(r),y=d.x*Math.sin(r)+d.y*Math.cos(r);return y<=0&&y>=-TOOL_SIZE&&Math.abs(x)<=TOOL_SIZE+y}
+function onEdge(p,edge){const v=sub(edge.b,edge.a),t=Math.max(0,Math.min(1,dot(sub(p,edge.a),v)/dot(v,v)));return{x:edge.a.x+t*v.x,y:edge.a.y+t*v.y}}
+function nearestEdge(p){const matrix=svg.getScreenCTM(),scale=Math.hypot(matrix.a||1,matrix.b||0);const tolerance=28/scale;let best=null;for(const edge of rulerEdges()){const point=onEdge(p,edge),distance=dist(p,point);if(distance<=tolerance&&(!best||distance<best.distance))best={edge,point,distance}}return best}
+function updateLine(p){if(activeLine.kind==='freehand'){if(dist(p,activeLine.points.at(-1))>=1){activeLine.points.push(p);activeLine.end=p;activeLine.el.setAttribute('d',activeLine.points.map((q,i)=>`${i?'L':'M'}${q.x} ${q.y}`).join(' '))}return}const point=onEdge(p,activeLine.edge);activeLine.end=point;activeLine.el.setAttribute('x2',point.x);activeLine.el.setAttribute('y2',point.y)}
+function setEraser(enabled){erasing=enabled;$('eraser').setAttribute('aria-pressed',String(enabled));svg.style.cursor=enabled?'crosshair':''}
+function eraseAt(a,b=a){const matrix=svg.getScreenCTM(),radius=18/Math.hypot(matrix.a||1,matrix.b||0);const pointDistance=(p,x,y)=>dist(x,y)<1e-8?dist(p,x):dist(p,onEdge(p,{a:x,b:y}));const cross=(v,w)=>v.x*w.y-v.y*w.x;
+ const segmentDistance=(x,y)=>{const u=sub(b,a),v=sub(y,x),d=cross(u,v);if(Math.abs(d)>1e-8){const q=sub(x,a),t=cross(q,v)/d,s=cross(q,u)/d;if(t>=0&&t<=1&&s>=0&&s<=1)return 0}return Math.min(pointDistance(a,x,y),pointDistance(b,x,y),pointDistance(x,a,b),pointDistance(y,a,b))};
+ freeStrokes=freeStrokes.filter(stroke=>{for(let i=1;i<stroke.points.length;i++)if(segmentDistance(stroke.points[i-1],stroke.points[i])<=radius){stroke.el.remove();return false}return true});
+}
+function snapTool(){
+ const matrix=svg.getScreenCTM(),scale=Math.hypot(matrix.a||1,matrix.b||0),tolerance=Math.min(4/scale,5);let best=null;
+ for(const [key,[a,b]] of Object.entries(sides)){
+  const v=sub(b,a),length=len(v),u={x:v.x/length,y:v.y/length},normal={x:-u.y,y:u.x};
+  const desired=Math.atan2(v.y,v.x)*180/Math.PI+90,delta=((desired-tool.angle)%180+270)%180-90;
+  const signed=dot(sub(tool,a),normal),along=dot(sub(tool,a),u),r=tool.angle*Math.PI/180;
+  const tipAlong=along+dot({x:TOOL_SIZE*Math.sin(r),y:-TOOL_SIZE*Math.cos(r)},u);
+  const overlap=Math.min(length,Math.max(along,tipAlong))-Math.max(0,Math.min(along,tipAlong));
+  const tipDistance=signed+dot({x:TOOL_SIZE*Math.sin(r),y:-TOOL_SIZE*Math.cos(r)},normal);
+  if(Math.abs(delta)>1.25||Math.abs(signed)>tolerance||Math.abs(tipDistance)>tolerance||overlap<40)continue;
+  const score=Math.abs(delta)/1.25+Math.max(Math.abs(signed),Math.abs(tipDistance))/tolerance;
+  if(!best||score<best.score)best={key,score,x:tool.x-signed*normal.x,y:tool.y-signed*normal.y,angle:tool.angle+delta};
+ }
+ if(!best)return false;
+ tool={x:best.x,y:best.y,angle:best.angle};$('ruler').classList.add('snap-motion');drawTool();return true;
+}
+function drawTool(){ $('ruler').setAttribute('transform',`translate(${tool.x} ${tool.y}) rotate(${tool.angle})`)}
+function renderTriangle(){
+ const center={x:(vertices.a.x+vertices.b.x+vertices.c.x)/3,y:(vertices.a.y+vertices.b.y+vertices.c.y)/3};
+ const offset=(p,d)=>{const v=sub(p,center),length=len(v);return{x:p.x+d*v.x/length,y:p.y+d*v.y/length}};
+ let markup=`<path class="tri" d="M${vertices.a.x} ${vertices.a.y} L${vertices.b.x} ${vertices.b.y} L${vertices.c.x} ${vertices.c.y} Z"/>`;
+ for(const key of ['a','b','c']){const p=offset(vertices[key],25),[a,b]=sides[key],q=offset({x:(a.x+b.x)/2,y:(a.y+b.y)/2},23);markup+=`<text class="vertex" text-anchor="middle" dominant-baseline="middle" x="${p.x}" y="${p.y}">${key.toUpperCase()}</text><text class="side" text-anchor="middle" dominant-baseline="middle" x="${q.x}" y="${q.y}">${key}</text>`}
+ $('triangle').innerHTML=markup;
+}
+function triangleVariant(level,index){
+ const shapes={
+  1:[[[288.8,407.6],[715.6,350.4],[469.2,134.8]],[[340,410],[640,410],[490,150]],[[270,365],[730,365],[510,120]],[[310,410],[720,350],[420,155]],[[320,385],[650,430],[570,140]],[[300,360],[700,400],[480,150]]],
+  2:[[[335,390],[690,390],[335,155]],[[350,400],[650,400],[350,100]],[[320,380],[740,380],[320,230]],[[350,400],[620,400],[350,100]],[[340,390],[730,390],[340,200]],[[340,400],[560,400],[340,80]]],
+  3:[[[290,350],[690,350],[410,220]],[[290,350],[710,350],[500,215]],[[300,360],[720,360],[380,235]],[[290,350],[690,350],[600,225]],[[280,350],[700,350],[480,200]],[[290,370],[710,370],[440,225]]]
+ },angles={1:[0,38,-32,76,-58,155],2:[-12,42,-52,112,-95,170],3:[12,-37,55,-68,105,160]};
+ const variant=index%6,points=shapes[level][variant].map(([x,y])=>({x,y})),longest=Math.max(dist(points[0],points[1]),dist(points[1],points[2]),dist(points[2],points[0])),reference=Math.hypot(715.6-288.8,350.4-407.6),scale=reference/longest,angle=(angles[level][variant]+Math.floor(index/6)*23)*Math.PI/180,first=level===1&&index===0,center=first?{x:500,y:280}:{x:points.reduce((n,p)=>n+p.x,0)/3,y:points.reduce((n,p)=>n+p.y,0)/3},result={};
+ for(let i=0;i<3;i++){const point=points[level===1?i:(i+index)%3],d=sub(point,center);result[['a','b','c'][i]]={x:500+scale*(d.x*Math.cos(angle)-d.y*Math.sin(angle)),y:280+scale*(d.x*Math.sin(angle)+d.y*Math.cos(angle))}}
+ return result;
+}
+function startRound(index){
+ $('finishedScene').setAttribute('transform','');$('finishedScene').style.opacity='1';
+ successRun++;roundIndex=index;roundHelped=false;sceneViewBox='';Object.assign(vertices,triangleVariant(currentLevel,index));
+ for(const key of ['a','b','c'])vertices[key]={x:500+(vertices[key].x-500)*1.1,y:280+(vertices[key].y-280)*1.1};
+ sides.a=[vertices.b,vertices.c];sides.b=[vertices.a,vertices.c];sides.c=[vertices.a,vertices.b];
+ TOOL_SIZE=Math.ceil(Math.max(...Object.keys(vertices).map(k=>dist(vertices[k],foot(k)))))+20;
+ $('rulerOutline').setAttribute('d',`M${-TOOL_SIZE} 0 L${TOOL_SIZE} 0 L0 ${-TOOL_SIZE} Z`);const radius=Math.round(TOOL_SIZE*.4);$('rulerArc').setAttribute('d',`M${-radius} 0 A${radius} ${radius} 0 0 1 ${radius} 0`);$('rulerMiddle').setAttribute('d',`M0 0 L0 ${-TOOL_SIZE}`);
+ stage=mode==='free'?'free':'draw';freeStrokes=[];setEraser(false);target='c';pending=null;activeLine=null;pointers.clear();gesture=null;$('feedback').close();$('quiz').hidden=true;$('lines').replaceChildren();heightLines.clear();$('sideExtensions').replaceChildren();$('altitudeExtensions').replaceChildren();$('intersection').replaceChildren();$('answerFeedback').textContent='';document.querySelectorAll('[data-answer]').forEach(b=>b.style.borderColor='');$('successFlash').classList.remove('show','grand');$('successFlash').textContent='';$('confetti').replaceChildren();$('task').textContent='Zeichne die Höhe zur Seite c ein.';tool={x:560,y:525,angle:0};$('ruler').style.opacity='1';drawTool();renderTriangle();renderSideExtensions();fitScene();unlockInput();
+}
+function finishRound(){
+ if(!roundHelped){soloCounts[currentLevel]=Math.min(3,soloCounts[currentLevel]+1);if(soloCounts[currentLevel]===3&&!completedLevels.includes(currentLevel))completedLevels.push(currentLevel);saveMastery()}
+ stage='roundSuccess';const run=++successRun,flash=$('successFlash');flash.textContent='Ja, geschafft!';flash.classList.add('grand','show');$('task').textContent='Alle drei Höhen stimmen!';celebrate(180);
+ setTimeout(()=>{if(run===successRun&&stage==='roundSuccess')transitionRound(run)},3100);
+}
+async function transitionRound(run){
+ stage='roundTransition';lockInput();$('successFlash').classList.remove('show','grand');$('successFlash').textContent='';
+ const initialOpacity=Number($('ruler').style.opacity||1);
+ if(!await tween(650,t=>{$('ruler').style.opacity=String(initialOpacity*(1-t))},run))return;
+ let pivot=null,clearance=-1;
+ for(let i=1;i<9;i++)for(let j=1;j<10-i;j++){const wa=i/10,wb=j/10,wc=1-wa-wb,p={x:vertices.a.x*wa+vertices.b.x*wb+vertices.c.x*wc,y:vertices.a.y*wa+vertices.b.y*wb+vertices.c.y*wc};
+  const gap=Math.min(...['a','b','c'].flatMap(k=>[lineDistance(p,...sides[k]),lineDistance(p,vertices[k],foot(k))]));if(gap>clearance){pivot=p;clearance=gap}
+ }
+ const [, ,width,height]=sceneViewBox.split(' ').map(Number),maxScale=Math.max(40,Math.hypot(width,height)/Math.max(clearance,1)*1.5);
+ if(!await tween(3600,t=>{const scale=Math.exp(Math.log(maxScale)*t);$('finishedScene').setAttribute('transform',`translate(${pivot.x} ${pivot.y}) scale(${scale}) translate(${-pivot.x} ${-pivot.y})`);$('finishedScene').style.opacity=String(t<.92?1:(1-t)/.08)},run))return;
+ await pause(350);if(run!==successRun)return;
+ if(soloCounts[currentLevel]<3)startRound(roundIndex+1);else completeLevel();
+}
+function orthocenter(){const u=sub(sides.c[1],sides.c[0]),v=sub(sides.a[1],sides.a[0]),p=dot(u,vertices.c),q=dot(v,vertices.a),d=u.x*v.y-u.y*v.x;return{x:(p*v.y-u.y*q)/d,y:(u.x*q-p*v.x)/d}}
+function makeAuxLine(group,a,b,className,color){const line=document.createElementNS(NS,'line');for(const [key,value] of Object.entries({x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:className}))line.setAttribute(key,value);if(color)line.style.setProperty('--height-color',color);$(group).append(line);return line}
+function renderSideExtensions(){if(currentLevel!==3)return;for(const key of ['a','b','c']){const [a,b]=sides[key],v=sub(b,a),f=foot(key),t=dot(sub(f,a),v)/dot(v,v);if(t<0||t>1){const endpoint=t<0?a:b,unit=sub(f,endpoint),length=len(unit);makeAuxLine('sideExtensions',endpoint,{x:f.x+unit.x/length*18,y:f.y+unit.y/length*18},'side-extension')}}}
+function alignmentStop(key){const [a,b]=sides[key],v=sub(b,a),t=dot(sub(foot(key),a),v)/dot(v,v),position=t<.5?.75:.25;return{x:a.x+v.x*position,y:a.y+v.y*position}}
+function fitScene(){
+ if(sceneViewBox){svg.setAttribute('viewBox',sceneViewBox);return}
+ const points=[...Object.values(vertices),...['a','b','c'].map(foot),orthocenter()];
+ points.push(...rulerEdges().map(e=>e.a));
+ const minX=Math.min(...points.map(p=>p.x))-44,minY=Math.min(...points.map(p=>p.y))-44,maxX=Math.max(...points.map(p=>p.x))+44,maxY=Math.max(...points.map(p=>p.y))+44;sceneViewBox=`${minX} ${minY} ${maxX-minX} ${maxY-minY}`;svg.setAttribute('viewBox',sceneViewBox);
+}
+function markCorrect(line,key){line.classList.add('correct');line.classList.remove('tracing');line.style.setProperty('--height-color',heightColors[key]);perfectHeight(line,key);heightLines.set(key,line)}
+function addHeightLabel(key){const f=foot(key),vertex=vertices[key],t=document.createElementNS(NS,'text');t.setAttribute('x',(f.x+vertex.x)/2-30);t.setAttribute('y',(f.y+vertex.y)/2-9);t.setAttribute('fill',heightColors[key]);t.setAttribute('class','height-label');t.innerHTML=`h<tspan baseline-shift="sub" font-size="16">${key}</tspan>`;$('lines').append(t)}
+function advanceHeight(){if(target==='b'){finishRound()}else{stage='draw';target=target==='c'?'a':'b';$('task').textContent=`Zeichne die Höhe zur Seite ${target} ein.`}}
+function pause(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+async function tween(ms,frame,run){const steps=Math.ceil(ms/20);frame(0);for(let i=1;i<=steps;i++){await pause(20);if(run!==successRun)return false;const t=i/steps;frame(t*t*(3-2*t))}return true}
+function lockInput(){$('exercise').inert=true;$('interactionLock').hidden=false}
+function unlockInput(){$('exercise').inert=false;$('interactionLock').hidden=true}
+async function revealIntersection(run){
+ if(currentLevel!==3||heightLines.size!==3)return true;
+ lockInput();$('ruler').style.opacity='0';
+ const h=orthocenter(),extensions=[];
+ for(const key of ['a','b','c']){const {a,b}=drawnEndpoints(heightLines.get(key)),v=sub(b,a),length=len(v),t=dot(sub(h,a),v)/dot(v,v),extra=25/length;
+  if(t<0){const end={x:a.x+v.x*(t-extra),y:a.y+v.y*(t-extra)};extensions.push({a,end,line:makeAuxLine('altitudeExtensions',a,a,'altitude-extension',heightColors[key])})}
+  if(t>1){const end={x:a.x+v.x*(t+extra),y:a.y+v.y*(t+extra)};extensions.push({a:b,end,line:makeAuxLine('altitudeExtensions',b,b,'altitude-extension',heightColors[key])})}
+ }
+ if(!await tween(2200,t=>{for(const e of extensions){e.line.setAttribute('x2',e.a.x+(e.end.x-e.a.x)*t);e.line.setAttribute('y2',e.a.y+(e.end.y-e.a.y)*t)}},run))return false;
+ $('intersection').innerHTML=`<path d="M${h.x-5} ${h.y}H${h.x+5}M${h.x} ${h.y-5}V${h.y+5}" stroke="#147c75" stroke-width="2.5"/><text class="orthocenter-label" x="${h.x+13}" y="${h.y-12}">H</text>`;
+ await pause(1200);return run===successRun;
+}
+async function demonstrate(){
+ if(!['draw','quiz'].includes(stage))return;
+ roundHelped=true;
+ const wasQuiz=stage==='quiz',key=target,run=++successRun;stage='help';activeLine?.el.remove();activeLine=null;pending=null;pointers.clear();gesture=null;$('quiz').hidden=true;$('ruler').classList.remove('snap-motion');lockInput();
+ if(!wasQuiz){
+  const f=foot(key),vertex=vertices[key],stop=alignmentStop(key),direction=sub(vertex,f),wanted=Math.atan2(direction.y,direction.x)*180/Math.PI,delta=((wanted-tool.angle)%180+270)%180-90,from={...tool},alignedAngle=from.angle+delta;
+  if(!await tween(3200,t=>{tool={x:from.x+(stop.x-from.x)*t,y:from.y+(stop.y-from.y)*t,angle:from.angle+delta*t};drawTool()},run))return;
+  await pause(900);if(run!==successRun)return;
+  if(!await tween(2800,t=>{tool={x:stop.x+(f.x-stop.x)*t,y:stop.y+(f.y-stop.y)*t,angle:alignedAngle};drawTool()},run))return;
+  await pause(1500);if(run!==successRun)return;
+  const line=makeLine(vertex,vertex);line.classList.add('correct');line.style.setProperty('--height-color',heightColors[key]);
+  if(!await tween(3600,t=>{line.setAttribute('x2',vertex.x+(f.x-vertex.x)*t);line.setAttribute('y2',vertex.y+(f.y-vertex.y)*t)},run))return;
+  markCorrect(line,key);
+  if(key==='b'&&!await revealIntersection(run))return;
+ }
+ await pause(2000);if(run!==successRun)return;addHeightLabel(key);unlockInput();advanceHeight();
+}
+function updateMenu(){for(const n of [1,2,3]){const button=$(`level${n}`),done=completedLevels.includes(n);button.disabled=done;button.setAttribute('aria-label',done?`Stufe ${n}, bereits geschafft`:`Stufe ${n}`)}if(completedLevels.length===3)$('menuMessage').textContent='Du hast alle drei Stufen geschafft. Das kannst du jetzt!'}
+function renderMenuDiagram(){
+ const points={a:{x:135,y:255},b:{x:485,y:240},c:{x:310,y:45}},pairs={a:[points.b,points.c],b:[points.a,points.c],c:[points.a,points.b]},colors={a:'#9655af',b:'#2477b7',c:'#c74549'},center={x:310,y:180};let markup='';
+ const label=(p,text,color,size=23)=>`<text x="${p.x}" y="${p.y}" fill="${color}" font-family="Georgia,serif" font-style="italic" font-size="${size}" font-weight="600" text-anchor="middle" dominant-baseline="middle" paint-order="stroke" stroke="white" stroke-width="4">${text}</text>`;
+ const outward=(p,amount)=>{const d=sub(p,center),length=len(d);return{x:p.x+d.x/length*amount,y:p.y+d.y/length*amount}};
+ const labels=[];
+ for(const key of ['a','b','c']){const [a,b]=pairs[key],v=sub(b,a),vertex=points[key],t=dot(sub(vertex,a),v)/dot(v,v),f={x:a.x+t*v.x,y:a.y+t*v.y},color=colors[key];markup+=`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${color}" stroke-width="3.6"/><line x1="${vertex.x}" y1="${vertex.y}" x2="${f.x}" y2="${f.y}" stroke="${color}" stroke-width="2.6" opacity=".85"/>`;
+  const mid={x:(f.x+vertex.x)/2,y:(f.y+vertex.y)/2},n=sub(f,vertex),length=len(n);mid.x+=-n.y/length*15;mid.y+=n.x/length*15;
+  labels.push(label(outward(vertex,27),key.toUpperCase(),color,25),label(outward({x:(a.x+b.x)/2,y:(a.y+b.y)/2},23),key,color),label(mid,`h<tspan baseline-shift="sub" font-size="15">${key}</tspan>`,color,22));
+ }
+ $('menuDiagram').innerHTML=markup+labels.join('');
+}
+function goHome(message=''){successRun++;stage='menu';activeLine?.el.remove();activeLine=null;pending=null;pointers.clear();gesture=null;$('feedback').close();$('confirmHome').close();$('successFlash').classList.remove('show','grand');$('successFlash').textContent='';$('confetti').replaceChildren();unlockInput();$('exercise').hidden=true;$('topics').hidden=true;$('angleDone').hidden=true;$('guessDone').hidden=true;$('angleTypesHelp').close();$('anglePanel').hidden=true;$('guessPanel').hidden=true;$('menu').hidden=false;$('freeEntry').hidden=false;$('menuMessage').textContent=message;updateMenu()}
+function prepareMode(nextMode){mode=nextMode;$('angleEstimate').hidden=mode!=='angle';showSvg('ruler',true);$('exercise').setAttribute('data-mode',mode);$('menu').hidden=true;$('topics').hidden=true;$('angleDone').hidden=true;$('guessDone').hidden=true;$('guessPanel').hidden=mode!=='guess';$('guessHelp').hidden=mode!=='guess';$('resetTool').hidden=mode==='guess';$('restart').hidden=mode==='guess';$('freeEntry').hidden=true;$('exercise').hidden=false;$('help').hidden=mode==='free'||mode==='guess';$('help').disabled=false;$('taskPanel').hidden=mode==='free';$('eraser').hidden=mode!=='free';$('anglePanel').hidden=mode!=='angle';showSvg('angleDrawing',mode==='angle'||mode==='guess');showSvg('rulerNumbers',mode==='angle');showSvg('triangle',mode!=='angle'&&mode!=='guess');$('angleReadingCue').replaceChildren()}
+function startLevel(level){if(completedLevels.includes(level))return;currentLevel=level;prepareMode('lesson');startRound(0)}
+function startFree(){currentLevel=1;prepareMode('free');startRound(0)}
+function completeLevel(){
+ if(soloCounts[currentLevel]<3)return;
+ completedLevels.push(currentLevel);completedLevels=[...new Set(completedLevels)];saveMastery();
+ stage='levelComplete';const run=++successRun,flash=$('successFlash');flash.classList.remove('show');flash.textContent='Das kannst du jetzt!';flash.classList.add('grand');void flash.offsetWidth;flash.classList.add('show');celebrate(180);$('task').textContent=`Stufe ${currentLevel} geschafft! Drei Dreiecke ganz ohne Hilfe gelöst.`;
+ setTimeout(()=>{if(run===successRun&&stage==='levelComplete')goHome(`Stufe ${currentLevel} geschafft – das kannst du jetzt!`)},3100);
+}
+function makeLine(a,b){const l=document.createElementNS(NS,'line');l.setAttribute('x1',a.x);l.setAttribute('y1',a.y);l.setAttribute('x2',b.x);l.setAttribute('y2',b.y);l.setAttribute('class','draw tracing');$('lines').append(l);return l}
+function pair(){const p=[...pointers.values()];return{mid:{x:(p[0].x+p[1].x)/2,y:(p[0].y+p[1].y)/2},angle:Math.atan2(p[1].y-p[0].y,p[1].x-p[0].x)}}
+svg.addEventListener('pointerdown',e=>{if(mode==='angle'){angleToolDown(e);return}if(!['draw','free'].includes(stage)||$('feedback').open||$('confirmHome').open)return;e.preventDefault();$('ruler').classList.remove('snap-motion');svg.setPointerCapture(e.pointerId);const p=position(e);pointers.set(e.pointerId,p);
+ if(pointers.size===2){if(activeLine){activeLine.el.remove();activeLine=null}const g=pair();gesture={kind:'two',...g,tool:{...tool}};return}
+ if(pointers.size>2)return;
+ if(stage==='free'&&erasing){gesture={kind:'eraser',last:p};eraseAt(p);return}
+ if(e.pointerType==='mouse'&&(space||e.button===2)){gesture={kind:'mouse',start:p,tool:{...tool}};return}
+ const hit=nearestEdge(p);if(!hit){if(insideTool(p)){gesture={kind:'mouse',start:p,tool:{...tool}}}else if(stage==='free'){const el=document.createElementNS(NS,'path');el.setAttribute('class','freehand tracing');el.setAttribute('d',`M${p.x} ${p.y}`);$('lines').append(el);activeLine={kind:'freehand',start:p,end:p,points:[p],el}}return}
+ activeLine={start:hit.point,end:hit.point,edge:hit.edge,toolPose:{...tool},el:makeLine(hit.point,hit.point)};
+});
+svg.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;const p=position(e);pointers.set(e.pointerId,p);
+ if(gesture?.kind==='two'&&pointers.size>=2){const g=pair(),r=g.angle-gesture.angle,d=sub(gesture.tool,gesture.mid);tool.x=Math.max(30,Math.min(970,g.mid.x+d.x*Math.cos(r)-d.y*Math.sin(r)));tool.y=Math.max(30,Math.min(550,g.mid.y+d.x*Math.sin(r)+d.y*Math.cos(r)));tool.angle=gesture.tool.angle+r*180/Math.PI;drawTool()}
+ else if(gesture?.kind==='mouse'){tool.x=Math.max(30,Math.min(970,gesture.tool.x+p.x-gesture.start.x));tool.y=Math.max(30,Math.min(550,gesture.tool.y+p.y-gesture.start.y));drawTool()}
+ else if(gesture?.kind==='eraser'){eraseAt(gesture.last,p);gesture.last=p}
+ else if(activeLine){updateLine(p)}
+});
+function endPointer(e){if(!pointers.has(e.pointerId))return;pointers.delete(e.pointerId);if(e.type==='pointercancel'){activeLine?.el.remove();activeLine=null;pointers.clear();gesture=null;return}if(gesture){if(!pointers.size){const wasEraser=gesture.kind==='eraser';gesture=null;if(!wasEraser){if(mode==='angle')snapAngleTool();else snapTool()}}else if(pointers.size===1)gesture={kind:'mouse',start:[...pointers.values()][0],tool:{...tool}};return}if(activeLine){updateLine(position(e));const l=activeLine;activeLine=null;const strokeLength=l.kind==='freehand'?l.points.reduce((sum,p,i)=>sum+(i?dist(p,l.points[i-1]):0),0):dist(l.start,l.end);if(strokeLength<(stage==='free'?3:12)){l.el.remove();return}if(stage==='free'){l.el.classList.remove('tracing');freeStrokes.push({el:l.el,points:l.points||[l.start,l.end]});return}const result=assess(l.start,l.end,target,l.toolPose);pending=l.el;if(result.ok){pending.classList.add('correct');stage='success';showSuccess()}else{pending.classList.add('wrong');showFeedback(false,'Schau noch einmal hin.',result.text)}}}
+svg.addEventListener('pointerup',endPointer);svg.addEventListener('pointercancel',endPointer);svg.addEventListener('contextmenu',e=>e.preventDefault());
+svg.addEventListener('wheel',e=>{e.preventDefault();if(pointers.size||!['draw','free','angleMeasure'].includes(stage))return;tool.angle+=Math.sign(e.deltaY)*3;drawTool()},{passive:false});
+window.addEventListener('keydown',e=>{if(e.code==='Space'&&!['BUTTON','INPUT'].includes(document.activeElement.tagName)){space=true;e.preventDefault()}});window.addEventListener('keyup',e=>{if(e.code==='Space')space=false});window.addEventListener('blur',()=>{space=false;activeLine?.el.remove();activeLine=null;pointers.clear();gesture=null});
+function showFeedback(good,title,text){$('symbol').className='symbol'+(good?' good':'');$('symbol').textContent=good?'✓':'!';$('feedbackTitle').textContent=title;$('feedbackText').textContent=text;$('feedbackOk').textContent=good?'Weiter':'Noch einmal versuchen';$('feedback').showModal()}
+function drawnEndpoints(line){return{a:{x:Number(line.getAttribute('x1')),y:Number(line.getAttribute('y1'))},b:{x:Number(line.getAttribute('x2')),y:Number(line.getAttribute('y2'))}}}
+function perfectHeight(line,key){
+ if(!line)return;const {a,b}=drawnEndpoints(line),length=dist(a,b),vertex=vertices[key],v=sub(foot(key),vertex),axisLength=len(v),u={x:v.x/axisLength,y:v.y/axisLength},mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2},center=dot(sub(mid,vertex),u),direction=dot(sub(b,a),u)>=0?1:-1;
+ const start=center-direction*length/2,end=center+direction*length/2;
+ line.setAttribute('x1',vertex.x+u.x*start);line.setAttribute('y1',vertex.y+u.y*start);line.setAttribute('x2',vertex.x+u.x*end);line.setAttribute('y2',vertex.y+u.y*end);
+}
+function showSuccess(){
+ const run=++successRun;markCorrect(pending,target);pending=null;
+ const flash=$('successFlash');flash.textContent='Ja!';flash.classList.add('show');celebrate();
+ setTimeout(async()=>{if(run!==successRun||stage!=='success')return;flash.classList.remove('show');flash.textContent='';if(target==='b'&&!await revealIntersection(run))return;if(run!==successRun)return;unlockInput();stage='quiz';$('task').textContent=`Wie wird die Höhe zur Seite ${target} beschriftet?`;$('answerFeedback').textContent='';document.querySelectorAll('[data-answer]').forEach(b=>b.style.borderColor='');$('quiz').hidden=false},2100);
+}
+$('feedbackOk').onclick=()=>$('feedback').close();$('feedback').querySelector('.close').onclick=()=>$('feedback').close();
+$('feedback').addEventListener('close',()=>{if(pending){const l=pending;l.classList.add('fade');setTimeout(()=>l.remove(),3000)}pending=null});
+document.querySelectorAll('[data-answer]').forEach(b=>b.onclick=()=>{
+ if(stage!=='quiz')return;
+ if(b.dataset.answer!==target){$('answerFeedback').textContent='Noch nicht ganz. Der Index nennt die Seite, zu der die Höhe gehört.';b.style.borderColor='#db4e58';return}
+ $('quiz').hidden=true;addHeightLabel(target);advanceHeight();
+});
+$('resetTool').onclick=()=>{if(mode==='angle'){resetAngleTool();return}tool={x:560,y:525,angle:0};$('ruler').style.opacity='1';drawTool();fitScene()};
+$('restart').onclick=()=>{if(mode==='angle')startAngles();else startRound(0)};
+$('help').onclick=()=>mode==='angle'?demonstrateAngle():demonstrate();$('home').onclick=()=>$('confirmHome').showModal();
+$('stayHere').onclick=()=>$('confirmHome').close();$('confirmHomeYes').onclick=()=>goTopics();$('freeEntry').onclick=startFree;$('eraser').onclick=()=>setEraser(!erasing);
+document.querySelectorAll('[data-level]').forEach(button=>button.onclick=()=>startLevel(Number(button.dataset.level)));
+
+function celebrate(count=75){for(let i=0;i<count;i++){const p=document.createElement('i');p.className='confetto';p.style.left=Math.random()*100+'%';p.style.top='0';p.style.background=['#147c75','#edc950','#e89587','#83b7cb'][i%4];p.style.animationDelay=Math.random()*.8+'s';$('confetti').append(p);setTimeout(()=>p.remove(),4800)}}
+const angleTasks=[{value:42,base:0},{value:128,base:20},{value:67,base:-10},{value:238,base:35},{value:154,base:-25},{value:312,base:10},{value:81,base:50},{value:204,base:-15}];
+let angleIndex=0,angleGuess=null,angleSnapArm=null;
+const angleVertex={x:410,y:300};
+function anglePoint(deg,radius=390){const r=deg*Math.PI/180;return{x:angleVertex.x+radius*Math.cos(r),y:angleVertex.y-radius*Math.sin(r)}}
+function angleCategory(value){return value<90?0:value<180?1:2}
+function goTopics(){goHome();mode='lesson';stage='topics';$('menu').hidden=true;$('topics').hidden=false;$('angleDone').hidden=true;$('freeEntry').hidden=false}
+function startAngles(){prepareMode('angle');angleIndex=0;startAngleTask()}
+function startAngleTask(){
+ successRun++;$('ruler').classList.remove('snap-motion');stage='angleRange';activeLine=null;pending=null;pointers.clear();gesture=null;unlockInput();$('finishedScene').setAttribute('transform','');$('finishedScene').style.opacity='1';$('lines').replaceChildren();$('sideExtensions').replaceChildren();$('altitudeExtensions').replaceChildren();$('intersection').replaceChildren();$('angleReadingCue').replaceChildren();$('successFlash').classList.remove('show','grand');$('successFlash').textContent='';$('confetti').replaceChildren();$('quiz').hidden=true;$('task').textContent='Miss den Winkel.';$('help').disabled=true;showSvg('ruler',false);$('ruler').style.opacity='1';$('angleRange').hidden=false;$('angleForm').hidden=true;$('angleInput').value='';$('angleMessage').textContent='';$('angleMessage').className='angle-message';$('angleHint').textContent='';
+ const task=angleTasks[angleIndex],a=anglePoint(task.base),b=anglePoint(task.base+task.value),arcA=anglePoint(task.base,90),arcB=anglePoint(task.base+task.value,90),label=anglePoint(task.base+task.value/2,119),large=task.value>180?1:0;
+ $('angleDrawing').innerHTML=`<line x1="${angleVertex.x}" y1="${angleVertex.y}" x2="${a.x}" y2="${a.y}" stroke="#243e47" stroke-width="2.6" stroke-linecap="round"/><line x1="${angleVertex.x}" y1="${angleVertex.y}" x2="${b.x}" y2="${b.y}" stroke="#243e47" stroke-width="2.6" stroke-linecap="round"/><path d="M${arcA.x} ${arcA.y} A90 90 0 ${large} 0 ${arcB.x} ${arcB.y}" stroke="#147c75" stroke-width="2.4" fill="none"/>`;
+ TOOL_SIZE=390;const radius=TOOL_SIZE*.58;$('rulerOutline').setAttribute('d',`M${-TOOL_SIZE} 0 L${TOOL_SIZE} 0 L0 ${-TOOL_SIZE} Z`);$('rulerArc').setAttribute('d',`M${-radius} 0 A${radius} ${radius} 0 0 1 ${radius} 0`);$('rulerMiddle').setAttribute('d',`M0 0 L0 ${-TOOL_SIZE}`);drawAngleScale(radius);resetAngleTool();angleGuess=null;$('angleEstimate').textContent='Deine Schätzung: noch offen';
+ const readRadius=radius+44,points=[a,b,angleVertex,{x:angleVertex.x-readRadius,y:angleVertex.y-readRadius},{x:angleVertex.x+readRadius,y:angleVertex.y+readRadius},...rulerEdges().map(e=>e.a)],minX=Math.min(...points.map(p=>p.x))-18,minY=Math.min(...points.map(p=>p.y))-18,maxX=Math.max(...points.map(p=>p.x))+18,maxY=Math.max(...points.map(p=>p.y))+18;sceneViewBox=`${minX} ${minY} ${maxX-minX} ${maxY-minY}`;svg.setAttribute('viewBox',sceneViewBox);
+}
+function drawAngleScale(radius){
+ let markup='';const p=(deg,r)=>({x:r*Math.cos(deg*Math.PI/180),y:-r*Math.sin(deg*Math.PI/180)});
+ for(let deg=0;deg<=180;deg++){
+  const major=deg%10===0,mid=deg%5===0,tick=major?12:mid?8:4,a=p(deg,radius-tick/2),b=p(deg,radius+tick/2);markup+=`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#496c73" stroke-width="${major?1.2:.65}"/>`;
+  if(major){const outside=p(deg,radius+24),inside=p(deg,radius-26);markup+=`<text x="${outside.x}" y="${outside.y}" text-anchor="middle" dominant-baseline="middle" font-size="23" font-weight="600" font-family="system-ui,sans-serif" fill="#224d57">${deg}</text><text x="${inside.x}" y="${inside.y}" text-anchor="middle" dominant-baseline="middle" font-size="21" font-weight="600" font-family="system-ui,sans-serif" fill="#3d5c64">${180-deg}</text>`}
+ }
+ $('rulerNumbers').innerHTML=markup;
+}
+function resetAngleTool(){angleSnapArm=null;tool={x:490,y:430,angle:-8};drawTool();$('angleReadingCue').replaceChildren();$('angleHint').textContent=''}
+function chooseAngleRange(category){
+ if(stage!=='angleRange')return;
+ if(category!==angleCategory(angleTasks[angleIndex].value)){$('angleMessage').textContent='Dieser Bereich passt nicht. '+angleReason(angleTasks[angleIndex].value);$('angleMessage').className='angle-message wrong';return}
+ stage='angleMeasure';angleGuess=category;$('angleEstimate').textContent=`Deine Schätzung: ${['0° bis 90°','90° bis 180°','180° bis 360°'][category]}`;$('angleRange').hidden=true;$('angleForm').hidden=false;$('angleMessage').textContent='';$('angleMessage').className='angle-message';showSvg('ruler',true);$('help').disabled=false;
+}
+function checkAngle(){
+ if(stage!=='angleMeasure')return;
+ const raw=$('angleInput').value.trim(),value=Number(raw.replace(',','.'));
+ if(!/^(?:\d+(?:[.,]\d*)?|[.,]\d+)$/.test(raw)||!Number.isFinite(value)||value<0||value>360){$('angleMessage').textContent='Gib eine Winkelgröße zwischen 0° und 360° ein.';$('angleMessage').className='angle-message wrong';return}
+ const error=Math.abs(value-angleTasks[angleIndex].value);
+ if(error<=1){
+  stage='angleSuccess';$('angleInput').blur?.();const run=++successRun,flash=$('successFlash');flash.textContent='Ja!';flash.classList.add('show');$('angleMessage').textContent='Richtig gemessen!';$('angleMessage').className='angle-message';celebrate();
+  setTimeout(()=>{if(run!==successRun||stage!=='angleSuccess')return;angleIndex++;if(angleIndex<angleTasks.length)startAngleTask();else finishAngles()},2100);
+ }else if(wrongAngleReadings(angleTasks[angleIndex].value).some(candidate=>Math.abs(value-candidate)<=2)){$('angleMessage').textContent='Du hast vermutlich die falsche Skala abgelesen. Nimm die Skala, die am angelegten Schenkel mit 0° beginnt. Vergleiche den Wert auch mit deiner Schätzung.';$('angleMessage').className='angle-message wrong'}else if(angleTasks[angleIndex].value>180&&Math.abs(value-(360-angleTasks[angleIndex].value))<=2){$('angleMessage').textContent='Du hast den kleineren Winkel abgelesen. Gesucht ist der größere: Ziehe den abgelesenen Wert von 360° ab. Deine Schätzung hilft dir dabei.';$('angleMessage').className='angle-message wrong'}else if(error<=5){$('angleMessage').textContent='Fast! Miss noch einmal ganz genau.';$('angleMessage').className='angle-message almost'}else{$('angleMessage').textContent='Falsch. Lege das Geodreieck noch einmal an und miss erneut.';$('angleMessage').className='angle-message wrong'}
+}
+function wrongAngleReadings(value){const smaller=value>180?360-value:value,opposite=180-smaller;return value>180?[opposite,360-opposite]:[opposite]}
+function finishAngles(){successRun++;stage='angleDone';unlockInput();$('exercise').hidden=true;$('successFlash').classList.remove('show','grand');$('successFlash').textContent='';$('angleDone').hidden=false;$('freeEntry').hidden=true;celebrate(180)}
+function angleToolDown(e){
+ if(stage!=='angleMeasure'||$('confirmHome').open)return;
+ const p=position(e);if(!pointers.size&&!insideTool(p)&&!nearestEdge(p))return;
+ e.preventDefault();$('ruler').classList.remove('snap-motion');svg.setPointerCapture(e.pointerId);pointers.set(e.pointerId,p);$('angleReadingCue').replaceChildren();$('angleHint').textContent='';
+ if(pointers.size===1)gesture={kind:'mouse',start:p,tool:{...tool}};else if(pointers.size===2)gesture={kind:'two',...pair(),tool:{...tool}};
+}
+function snapAngleTool(){
+ if(mode!=='angle'||stage!=='angleMeasure')return false;
+ const matrix=svg.getScreenCTM(),scale=Math.hypot(matrix.a||1,matrix.b||0),tolerance=Math.min(9/scale,10);
+ const task=angleTasks[angleIndex];let best=null;
+ for(const [arm,direction] of [task.base,task.base+task.value].entries()){const desired=-direction,delta=((desired-tool.angle)%180+270)%180-90,r=direction*Math.PI/180,u={x:Math.cos(r),y:-Math.sin(r)},d=sub(tool,angleVertex),along=dot(d,u),normal=Math.abs(d.x*u.y-d.y*u.x),overlap=Math.min(390,along+TOOL_SIZE)-Math.max(0,along-TOOL_SIZE);if(Math.abs(delta)<=1.25&&normal<=tolerance&&overlap>=50&&(!best||Math.abs(delta)+normal/tolerance<Math.abs(best.delta)+best.normal/tolerance))best={arm,delta,normal,u,along}}
+ if(!best){angleSnapArm=null;return false}
+ const center=angleSnapArm===best.arm&&dist(tool,angleVertex)<=tolerance;
+ tool={x:center?angleVertex.x:angleVertex.x+best.u.x*best.along,y:center?angleVertex.y:angleVertex.y+best.u.y*best.along,angle:tool.angle+best.delta};angleSnapArm=best.arm;$('ruler').classList.add('snap-motion');drawTool();return true;
+}
+async function demonstrateAngle(){
+ if(stage!=='angleMeasure')return;
+ const task=angleTasks[angleIndex],reflex=task.value>180,measured=reflex?360-task.value:task.value,rayDirection=task.base+(reflex?task.value:0),wanted=-rayDirection,from={...tool},delta=((wanted-from.angle)%360+540)%360-180,run=++successRun,stop=anglePoint(rayDirection,120),alignedAngle=from.angle+delta;
+ stage='angleHelp';$('ruler').classList.remove('snap-motion');pointers.clear();gesture=null;lockInput();$('angleReadingCue').replaceChildren();$('angleHint').textContent='';
+ if(!await tween(3200,t=>{tool={x:from.x+(stop.x-from.x)*t,y:from.y+(stop.y-from.y)*t,angle:from.angle+delta*t};drawTool()},run))return;
+ await pause(900);if(run!==successRun)return;
+ if(!await tween(2600,t=>{tool={x:stop.x+(angleVertex.x-stop.x)*t,y:stop.y+(angleVertex.y-stop.y)*t,angle:alignedAngle};drawTool()},run))return;
+ await pause(1100);if(run!==successRun)return;
+ const r=measured*Math.PI/180,radius=TOOL_SIZE*.58,out=radius+24,a={x:(radius-13)*Math.cos(r),y:-(radius-13)*Math.sin(r)},b={x:(radius+36)*Math.cos(r),y:-(radius+36)*Math.sin(r)};
+ $('angleReadingCue').innerHTML=`<circle class="reading-cue" cx="${out*Math.cos(r)}" cy="${-out*Math.sin(r)}" r="19"/><line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#e18d18" stroke-width="3"/>`;
+ $('angleHint').textContent=reflex?`Lies den kleineren Winkel ab: ${measured}°. Der markierte Winkel ist 360° − ${measured}° = ${task.value}°.`:`Beginne bei 0° am angelegten Schenkel. An der markierten Stelle liest du ${measured}° ab.`;
+ await pause(2200);if(run!==successRun)return;stage='angleMeasure';unlockInput();
+}
+$('topicAngles').onclick=startAngles;$('topicHeights').onclick=()=>goHome();$('heightTopics').onclick=goTopics;$('angleDoneHome').onclick=goTopics;
+document.querySelectorAll('[data-range]').forEach(button=>button.onclick=()=>chooseAngleRange(Number(button.dataset.range)));
+$('angleForm').onsubmit=e=>{e.preventDefault();checkAngle()};
+
+const angleKinds=[
+ {key:'acute',name:'Spitzer Winkel',range:'0° < α < 90°',choice:'Zwischen 0° und 90°',example:42,reason:'Dieser Winkel ist kleiner als ein rechter Winkel (90°). Er ist also auch kleiner als eine halbe Drehung (180°).'},
+ {key:'right',name:'Rechter Winkel',range:'α = 90°',choice:'Genau 90°',example:90,reason:'Die beiden Schenkel stehen genau senkrecht zueinander. Das ist ein rechter Winkel mit genau 90°.'},
+ {key:'obtuse',name:'Stumpfer Winkel',range:'90° < α < 180°',choice:'Zwischen 90° und 180°',example:128,reason:'Dieser Winkel ist größer als ein rechter Winkel (90°), aber kleiner als eine halbe Drehung (180°).'},
+ {key:'straight',name:'Gestreckter Winkel',range:'α = 180°',choice:'Genau 180°',example:180,reason:'Die Schenkel zeigen genau in entgegengesetzte Richtungen und bilden eine gerade Linie. Das entspricht einer halben Drehung: genau 180°.'},
+ {key:'reflex',name:'Überstumpfer Winkel',range:'180° < α < 360°',choice:'Zwischen 180° und 360°',example:245,reason:'Der markierte Bogen zeigt mehr als eine halbe Drehung, aber noch keine ganze Drehung. Der Winkel liegt deshalb über 180° und unter 360°.'},
+ {key:'full',name:'Voller Winkel',range:'α = 360°',choice:'Genau 360°',example:360,reason:'Der Bogen zeigt eine ganze Drehung. Danach liegen beide Schenkel wieder übereinander. Das sind genau 360°.'}
+];
+const guessTasks=[{value:38,base:12},{value:124,base:-24},{value:90,base:18},{value:245,base:42},{value:180,base:-15},{value:360,base:28},{value:143,base:-38},{value:62,base:32},{value:360,base:-20},{value:180,base:48},{value:292,base:8},{value:90,base:-26}];
+let guessIndex=0;
+function angleKind(value){return value===90?angleKinds[1]:value===180?angleKinds[3]:value===360?angleKinds[5]:value<90?angleKinds[0]:value<180?angleKinds[2]:angleKinds[4]}
+function angleReason(value){return angleKind(value).reason}
+function estimateDiagram(value,base,vertex,length,arcRadius){
+ const p=(deg,r)=>({x:vertex.x+r*Math.cos(deg*Math.PI/180),y:vertex.y-r*Math.sin(deg*Math.PI/180)}),a=p(base,length),b=p(base+value,length),arcA=p(base,arcRadius),arcB=p(base+value,arcRadius);let arc;
+ if(value===360){const half=p(base+180,arcRadius);arc=`M${arcA.x} ${arcA.y} A${arcRadius} ${arcRadius} 0 0 0 ${half.x} ${half.y} A${arcRadius} ${arcRadius} 0 0 0 ${arcA.x} ${arcA.y}`}else arc=`M${arcA.x} ${arcA.y} A${arcRadius} ${arcRadius} 0 ${value>180?1:0} 0 ${arcB.x} ${arcB.y}`;
+ let markup=`<line x1="${vertex.x}" y1="${vertex.y}" x2="${a.x}" y2="${a.y}" stroke="#243e47" stroke-width="2.6" stroke-linecap="round"/><line x1="${vertex.x}" y1="${vertex.y}" x2="${b.x}" y2="${b.y}" stroke="#243e47" stroke-width="2.6" stroke-linecap="round"/><path d="${arc}" stroke="#147c75" stroke-width="2.5" fill="none"/>`;
+ if(value===360){const end=p(base-8,arcRadius),r=(base-8)*Math.PI/180,t={x:Math.sin(r),y:Math.cos(r)},n={x:Math.cos(r),y:-Math.sin(r)};markup+=`<path d="M${end.x} ${end.y} L${end.x-t.x*12+n.x*5} ${end.y-t.y*12+n.y*5} L${end.x-t.x*12-n.x*5} ${end.y-t.y*12-n.y*5} Z" fill="#147c75"/>`}
+ return markup;
+}
+function startGuessing(){prepareMode('guess');guessIndex=0;startGuessTask()}
+function startGuessTask(){
+ successRun++;stage='guess';activeLine?.el.remove();activeLine=null;pending=null;pointers.clear();gesture=null;unlockInput();$('quiz').hidden=true;$('anglePanel').hidden=true;showSvg('ruler',false);showSvg('rulerNumbers',false);showSvg('triangle',false);showSvg('angleDrawing',true);$('finishedScene').setAttribute('transform','');$('finishedScene').style.opacity='1';for(const id of ['lines','sideExtensions','altitudeExtensions','intersection','angleReadingCue'])$(id).replaceChildren();$('successFlash').classList.remove('show','grand');$('successFlash').textContent='';$('confetti').replaceChildren();$('guessMessage').textContent='';$('guessMessage').className='guess-message';
+ const task=guessTasks[guessIndex],naming=guessIndex%2===1,vertex={x:410,y:300},length=340,radius=95,p=deg=>({x:vertex.x+length*Math.cos(deg*Math.PI/180),y:vertex.y-length*Math.sin(deg*Math.PI/180)}),points=[p(task.base),p(task.base+task.value),{x:vertex.x-110,y:vertex.y-110},{x:vertex.x+110,y:vertex.y+110}],minX=Math.min(...points.map(q=>q.x))-36,minY=Math.min(...points.map(q=>q.y))-36,maxX=Math.max(...points.map(q=>q.x))+36,maxY=Math.max(...points.map(q=>q.y))+36;
+ $('angleDrawing').innerHTML=estimateDiagram(task.value,task.base,vertex,length,radius);sceneViewBox=`${minX} ${minY} ${maxX-minX} ${maxY-minY}`;svg.setAttribute('viewBox',sceneViewBox);$('task').textContent=naming?'Wie heißt dieser Winkel?':'In welchem Bereich liegt der Winkel?';$('guessOptions').replaceChildren();
+ for(const kind of angleKinds){const button=document.createElement('button');button.type='button';button.textContent=naming?kind.name:kind.choice;button.dataset.guess=kind.key;button.onclick=()=>answerGuess(kind.key);$('guessOptions').append(button)}
+}
+function answerGuess(key){
+ if(stage!=='guess'||$('angleTypesHelp').open)return;const correct=angleKind(guessTasks[guessIndex].value);
+ if(key!==correct.key){$('guessMessage').textContent='Das passt nicht. '+correct.reason;$('guessMessage').className='guess-message wrong';return}
+ stage='guessSuccess';$('guessMessage').textContent='Richtig!';$('guessMessage').className='guess-message';const run=++successRun,flash=$('successFlash');flash.textContent='Ja!';flash.classList.add('show');celebrate(45);
+ setTimeout(()=>{if(run!==successRun||stage!=='guessSuccess')return;guessIndex++;if(guessIndex<guessTasks.length)startGuessTask();else finishGuessing()},2100);
+}
+function showAngleTypes(){if(mode!=='guess'||stage!=='guess')return;$('typeCards').innerHTML=angleKinds.map(kind=>`<article class="type-card"><h3>${kind.name}</h3><p>${kind.range.replaceAll('<','&lt;')}</p><svg viewBox="0 0 260 230" role="img" aria-label="Beispiel für ${kind.name.toLowerCase()}: ${kind.example} Grad">${estimateDiagram(kind.example,0,{x:130,y:115},95,55)}</svg><p class="example">Beispiel: ${kind.example}°</p></article>`).join('');$('angleTypesHelp').showModal()}
+function finishGuessing(){successRun++;stage='guessDone';$('exercise').hidden=true;$('successFlash').classList.remove('show','grand');$('successFlash').textContent='';$('guessDone').hidden=false;$('freeEntry').hidden=true;celebrate(150)}
+$('topicGuess').onclick=startGuessing;$('guessHelp').onclick=showAngleTypes;$('closeTypesHelp').onclick=()=>$('angleTypesHelp').close();$('continueGuess').onclick=()=>$('angleTypesHelp').close();$('guessDoneHome').onclick=goTopics;
+
+renderMenuDiagram();renderTriangle();goTopics();
+</script></body></html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
